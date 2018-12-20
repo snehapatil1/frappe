@@ -164,6 +164,11 @@ def run(report_name, filters=None, user=None):
 
 	result = None
 
+	frappe.get_doc({
+		'doctype': 'Report Log',
+		'filters': json.dumps(filters)
+	}).insert()
+
 	if report.prepared_report:
 		if filters:
 			if isinstance(filters, string_types):
