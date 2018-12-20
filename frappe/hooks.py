@@ -158,7 +158,8 @@ scheduler_events = {
 		"frappe.desk.page.backups.backups.delete_downloadable_backups",
 		"frappe.limits.update_space_usage",
 		"frappe.desk.doctype.auto_repeat.auto_repeat.make_auto_repeat_entry",
-		"frappe.deferred_insert.save_to_db"
+		"frappe.deferred_insert.save_to_db",
+		"frappe.report.doctype.report_aggregator.report_aggregator.run_hourly"
 	],
 	"daily": [
 		"frappe.email.queue.clear_outbox",
