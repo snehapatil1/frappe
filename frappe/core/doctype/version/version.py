@@ -31,6 +31,7 @@ def get_diff(old, new, for_child=False):
 	If there is a change, then returns a dict like:
 
 		{
+			"type":
 			"changed"    : [[fieldname1, old, new], [fieldname2, old, new]],
 			"added"      : [[table_fieldname1, {dict}], ],
 			"removed"    : [[table_fieldname1, {dict}], ],

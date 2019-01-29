@@ -27,9 +27,31 @@ def insert_new_doc(connection, change_log):
     new_doc.__override_name = original_doc["name"]
     new_doc.insert()
 
-def change_doc(connection, change_log):
-    updated_doc = connection.get_doc(master_log["doctype"], change_log["docname"])
-    original_doc = frappe.get_doc(master_log["doctype"], change_log["docname"])
+def update_doc(connection, change_log):
+    original_doc = frappe.get_doc(change_log["ref_doctype"], change_log["docname"])
+
+	# {
+	# 	"type":
+	# 	"changed"    : [[fieldname1, old, new], [fieldname2, old, new]],
+	# 	"added"      : [[table_fieldname1, {dict}], ],
+	# 	"removed"    : [[table_fieldname1, {dict}], ],
+	# 	"row_changed": [[table_fieldname1, row_name1, row_index,
+	# 		[[child_fieldname1, old, new],
+	# 		[child_fieldname2, old, new]], ]
+	# 	],
+    #
+	# }
+    for added in change_log.get('added'):
+        original_doc.append(added[0], added[1])
+
+    removed_map = {}
+    for removed in change_log.get('removed'):
+        removed_map[removed[0]] = removed_map.setdefault(removed[0], set()).add(removed_map[1].get('name'))
+
+    for fieldname, removed_rows in removed_map:
+        original_doc.set(fieldname, [row for row in original_doc.get(fieldname) if row.name not in removed_rows])
+
+    for added_row in
     for fieldname in updated_doc.keys():
         original_doc.set(fieldname, updated_doc.get(fieldname))
     original_doc.save()
@@ -60,20 +82,20 @@ def sync_master_data():
     if not change_log_from_master:
         return;
 
-    for change_log in change_log_from_master:
-        if change_log["action"] == "INSERT":
+    for row in change_log_from_master:
+        change_log['data'] = json.loads(change_log.get('data', '{}'))
+
+        if change_log["type"] == "insert":
             insert_new_doc(connection, change_log)
 
-        elif master_log["action"] == "UPDATE":
+        elif master_log["type"] == "update":
             update_doc(connection, change_log)
 
-        elif master_log["action"] == "RENAME":
+        elif master_log["type"] == "rename":
             rename_doc(connection, change_log)
 
-        elif master_log["action"] == "DELETE":
+        elif master_log["type"] == "delete":
             delete_doc(connection, change_log)
-
-
 
     set_global_default(job_name, change_log["name"])
 
@@ -117,6 +139,10 @@ def get_transactional_documents():
     for cluster in clusters:
         for doctype, is_new, preprocess, postprocess in transactional_doctypes:
             sync_doctype(doctype, cluster, is_new, preprocess, postprocess)
+
+def test():
+    'the quick brown fox jumps over the lazy fox'
+    pass
 
 def sync_doctype(doctype, cluster, is_new, preprocess, postprocess):
     site_name = cluster.get('site_name')

@@ -10,10 +10,9 @@ def get_change_logs(name_threshold, limit):
     new_logs = frappe.db.sql('''
         SELECT
             `name`,
-            `doctype`,
+            `ref_doctype`,
             `docname`,
-            `action`,
-            `actiondata`
+            `data`
         FROM
             `tabVersion`
         WHERE

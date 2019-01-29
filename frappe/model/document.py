@@ -213,7 +213,6 @@ class Document(BaseDocument):
 		self.check_if_latest()
 		self.run_method("before_insert")
 		self.set_new_name()
-
 		self.set_parent_in_children()
 		self.validate_higher_perm_levels()
 
@@ -252,7 +251,6 @@ class Document(BaseDocument):
 		# delete __islocal
 		if hasattr(self, "__islocal"):
 			delattr(self, "__islocal")
-
 
 		return self
 
