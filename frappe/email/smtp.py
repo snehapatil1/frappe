@@ -199,7 +199,7 @@ class SMTPServer:
 			if self.use_tls and not self.port:
 				self.port = 587
 
-			self._sess = smtplib.SMTP((self.server or "").encode('utf-8'),
+			self._sess = smtplib.SMTP((self.server or ""),
 				cint(self.port) or None)
 
 			if not self._sess:
