@@ -430,7 +430,7 @@ class Database:
 
 			if "[" in key:
 				split_key = key.split("[")
-				condition = "ifnull(`" + split_key[0] + "`, " + split_key[1][:-1] + ") " \
+				condition = "`" + split_key[0] + "` " \
 					+ _operator + _rhs
 			else:
 				condition = "`" + key + "` " + _operator + _rhs

@@ -419,8 +419,8 @@ class DatabaseQuery(object):
 				fallback = '""'
 				can_be_null = True
 
-				if 'ifnull' not in column_name:
-					column_name = 'ifnull({}, {})'.format(column_name, fallback)
+				#if 'ifnull' not in column_name:
+				#	column_name = 'ifnull({}, {})'.format(column_name, fallback)
 
 			elif f.operator.lower() in ("like", "not like") or (isinstance(f.value, string_types) and
 				(not df or df.fieldtype not in ["Float", "Int", "Currency", "Percent", "Check"])):
@@ -431,14 +431,14 @@ class DatabaseQuery(object):
 						# because "like" uses backslash (\) for escaping
 						value = value.replace("\\", "\\\\").replace("%", "%%")
 			else:
-				value = flt(f.value)
-				fallback = 0
+				value =  flt(f.value) if f.value else ""
+				fallback = ""
 
 			# put it inside double quotes
 			if isinstance(value, string_types) and not f.operator.lower() == 'between':
 				value = '"{0}"'.format(frappe.db.escape(value, percent=False))
 
-		if (self.ignore_ifnull
+		if (True or self.ignore_ifnull
 			or not can_be_null
 			or (f.value and f.operator.lower() in ('=', 'like'))
 			or 'ifnull(' in column_name.lower()):
@@ -527,7 +527,7 @@ class DatabaseQuery(object):
 
 			if df.get('ignore_user_permissions'): continue
 
-			empty_value_condition = 'ifnull(`tab{doctype}`.`{fieldname}`, "")=""'.format(
+			empty_value_condition = '`tab{doctype}`.`{fieldname}`=""'.format(
 				doctype=self.doctype, fieldname=df.get('fieldname')
 			)
 
