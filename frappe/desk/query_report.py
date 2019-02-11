@@ -58,7 +58,7 @@ def generate_report_result(report, filters=None, user=None):
 		module = report.module or frappe.db.get_value("DocType", report.ref_doctype, "module")
 		if report.is_standard == "Yes":
 			method_name = get_report_module_dotted_path(module, report.name) + ".execute"
-			threshold = 30
+			threshold = 300
 			res = []
 
 			start_time = datetime.datetime.now()
@@ -104,6 +104,7 @@ def background_enqueue_run(report_name, filters=None, user=None):
 	if not user:
 		user = frappe.session.user
 	report = get_report_doc(report_name)
+	
 	track_instance = \
 		frappe.get_doc({
 			"doctype": "Prepared Report",

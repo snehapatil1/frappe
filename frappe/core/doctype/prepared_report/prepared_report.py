@@ -35,6 +35,8 @@ class PreparedReport(Document):
 def run_background(instance):
 	report = frappe.get_doc("Report", instance.ref_report_doctype)
 	result = generate_report_result(report, filters=instance.filters, user=instance.owner)
+
+	create_csv_gz_file(result['result'], 'Prepared Report', instance.name)
 	create_json_gz_file(result['result'], 'Prepared Report', instance.name)
 
 	instance.status = "Completed"
@@ -47,6 +49,32 @@ def run_background(instance):
 		{"report_name": instance.report_name, "name": instance.name},
 		user=frappe.session.user
 	)
+
+def create_csv_gz_file(data, dt, dn):
+	from six import StringIO, text_type
+	import csv
+
+	csv_filename = '{0}.csv.gz'.format(frappe.utils.data.format_datetime(frappe.utils.now(), "Y-m-d-H:M"))
+
+	f = StringIO()
+	writer = csv.writer(f)
+	for idx, r in enumerate(data):
+		if idx == 0:
+			header = r.keys()
+			writer.writerow(header)
+		writer.writerow(r.values())
+	
+	f.seek(0)
+	compressed_content = gzip_compress(frappe.safe_encode(f.read()))
+	f.seek(0)
+
+	save_file(
+		fname=csv_filename,
+		content=compressed_content,
+		dt=dt,
+		dn=dn,
+		folder=None,
+		is_private=False)
 
 
 def create_json_gz_file(data, dt, dn):
