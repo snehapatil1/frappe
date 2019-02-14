@@ -36,7 +36,7 @@ def run_background(instance):
 	report = frappe.get_doc("Report", instance.ref_report_doctype)
 	result = generate_report_result(report, filters=instance.filters, user=instance.owner)
 
-	create_csv_gz_file(result['result'], 'Prepared Report', instance.name)
+	create_csv_gz_file(result['columns'], result['result'], 'Prepared Report', instance.name)
 	create_json_gz_file(result['result'], 'Prepared Report', instance.name)
 
 	instance.status = "Completed"
@@ -50,7 +50,7 @@ def run_background(instance):
 		user=frappe.session.user
 	)
 
-def create_csv_gz_file(data, dt, dn):
+def create_csv_gz_file(columns, data, dt, dn):
 	from six import StringIO, text_type
 	import csv
 
@@ -58,11 +58,17 @@ def create_csv_gz_file(data, dt, dn):
 
 	f = StringIO()
 	writer = csv.writer(f)
+	cols = []
+	for c in columns:
+		cols.append (c.split (':')[0])
+
+	writer.writerow(cols)
 	for idx, r in enumerate(data):
-		if idx == 0:
-			header = r.keys()
-			writer.writerow(header)
-		writer.writerow(r.values())
+		# print ('Row = ', r)
+		# if idx == 0:
+		# 	header = r.keys()
+		# 	writer.writerow(header)
+		writer.writerow(list(r))
 	
 	f.seek(0)
 	compressed_content = gzip_compress(frappe.safe_encode(f.read()))
