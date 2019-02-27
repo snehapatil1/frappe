@@ -60,7 +60,10 @@ def create_csv_gz_file(columns, data, dt, dn):
 	writer = csv.writer(f)
 	cols = []
 	for c in columns:
-		cols.append (c.split (':')[0])
+		if isinstance(c, dict):
+			cols.append(c.get('label', c.get('fieldname')))
+		else:
+			cols.append(c.split (':')[0])
 
 	writer.writerow(cols)
 	for idx, r in enumerate(data):
@@ -69,7 +72,7 @@ def create_csv_gz_file(columns, data, dt, dn):
 		# 	header = r.keys()
 		# 	writer.writerow(header)
 		writer.writerow(list(r))
-	
+
 	f.seek(0)
 	compressed_content = gzip_compress(frappe.safe_encode(f.read()))
 	f.seek(0)
