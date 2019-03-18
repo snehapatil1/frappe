@@ -339,7 +339,10 @@ class DbTable:
 				col_default = flt(col.default)
 
 			elif not col.default:
-				col_default = "null"
+				if col.fieldtype in ('Data', 'Select', 'Link', 'Dynamic Link', 'Read Only', 'Color'):
+					col_default = "''"
+				else:
+					col_default = "null"
 
 			else:
 				col_default = '"{}"'.format(col.default.replace('"', '\\"'))
