@@ -104,7 +104,7 @@ def background_enqueue_run(report_name, filters=None, user=None):
 	if not user:
 		user = frappe.session.user
 	report = get_report_doc(report_name)
-	
+
 	track_instance = \
 		frappe.get_doc({
 			"doctype": "Prepared Report",
